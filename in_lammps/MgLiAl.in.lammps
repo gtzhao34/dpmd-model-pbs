@@ -1,0 +1,38 @@
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+lattice bcc 3.5
+region box block 0 6 0 6 0 6
+
+create_box 3 box
+
+create_atoms 1 box basis 1 1
+
+set type 1 type/fraction 2 0.33 12345
+set type 1 type/fraction 3 0.33 54321
+
+mass 1 24.305
+mass 2 6.94
+mass 3 26.9815
+replicate 10 10 10
+
+pair_style deepmd ${dp_test}
+pair_coeff * * Mg Li Al
+
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+velocity all create 300.0 12345 mom yes rot yes dist gaussian
+
+fix 1 all nvt temp 300.0 300.0 0.1
+
+timestep 0.001
+
+thermo 50
+thermo_style custom step temp pe ke etotal press vol
+
+dump 1 all custom 100 mglial.lammpstrj id type x y z
+
+run 100

@@ -1,0 +1,40 @@
+units metal
+dimension 3
+boundary p p p
+atom_style atomic
+
+lattice sc 6.0
+region box block 0 4 0 4 0 4
+
+create_box 4 box
+
+create_atoms 1 box
+
+set type 1 type/fraction 2 0.25 12345
+set type 1 type/fraction 3 0.25 23456
+set type 1 type/fraction 4 0.25 34567
+
+mass 1 127.60
+mass 2 207.2
+mass 3 208.98
+mass 4 22.99
+
+pair_style deepmd ${dp_test}
+pair_coeff * * Te Pb Bi Na
+replicate 10 10 10
+
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+velocity all create 300.0 12345 mom yes rot yes dist gaussian
+
+fix 1 all nvt temp 300.0 300.0 0.1
+
+timestep 0.001
+
+thermo 10
+thermo_style custom step temp pe ke etotal press vol
+
+dump 1 all custom 100 tepbbina.lammpstrj id type x y z
+
+run 100
